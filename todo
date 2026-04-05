@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+c_file="/home/thamizh/cli_project/logic/todo_logic/todo.c"
+
+gcc "$c_file" -o run_todo
+
+if [ ! -f run_todo ] || [ "$c_file" -nt run_todo ]; then
+		gcc "c_file" -o run_todo || { 
+			echo "Error occurred"
+			exit 1
+		}
+fi
+
+args=("$@")
+./run_todo "${args[@]}" 
