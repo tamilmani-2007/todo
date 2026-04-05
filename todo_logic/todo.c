@@ -3,8 +3,16 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define FILE_PATH "/home/thamizh/cli_project/base/todo_base/todo_base.csv"
+#define FILEPATH "/home/thamizh/cli_project/base/todo_base/todo_base.csv"
 
+void guide(){	
+	printf("insufficient arguments! \n");
+	printf("Usage: \n");
+	printf("  1. todo do <task> --> to add tasks \n");
+	printf("  2. todo todos	    --> to show the todos \n");
+	printf("  3. todo clear     --> to truncate the todos \n");
+	printf("	=> 3.1 todo clear <finished task> --> to remove the finidhed task \n");
+}
 int isEmpty(FILE *fp){
 	if( fp == NULL ){
 		perror("Error occured");
@@ -13,22 +21,37 @@ int isEmpty(FILE *fp){
 	return 0;
 }
 
+int get_lastindex(){
+	FILE *fp = fopen(FILEPATH, "r");
+	if(isEmpty(fp)) return -1;
+	
+	char *line = NULL;
+	size_t len = 0;
+	int last_index = 0;
+
+	while(getline(&line, &len, fp) != -1){
+		last_index++;
+	}
+	return last_index/2 ;
+
+}
+
 void add_todo(char todo[]){
+	int last_index = get_lastindex();
 	FILE *fp;
-	fp = fopen(FILE_PATH, "a");
+	fp = fopen(FILEPATH, "a");
 
 	if(isEmpty(fp)){
 		printf("Error Occured while add to do!!!\n");
 		return;
-	}
-
-	fprintf(fp, "%s\n", todo);
+	}	
+	fprintf(fp, "%d. %s \n\n", last_index+1, todo);	
 	fclose(fp);
 }
 
 void show_todos(){
 	FILE *fp;
-	fp = fopen(FILE_PATH, "r");
+	fp = fopen(FILEPATH, "r");
 
 	if(isEmpty(fp)){
 		printf("Error Occured while showing todos!!!\n");
@@ -46,7 +69,7 @@ void show_todos(){
 }
 
 void erase_todo(){
-	FILE *fp = fopen(FILE_PATH, "w");
+	FILE *fp = fopen(FILEPATH, "w");
 	
 	if(isEmpty(fp)){
 		printf("Error occured while truncate todo's");
@@ -57,13 +80,7 @@ void erase_todo(){
 
 int main(int argc , char *argv[]){
 	if (argc<2){
-		printf("insufficient arguments! \n");
-		printf("Usage: \n");
-		printf("  1. todo do <task> --> to add tasks \n");
-		printf("  2. todo todos	    --> to show the todos \n");
-		printf("  3. todo clear     --> to truncate the todos \n");
-		printf("	=> 3.1 todo clear <finished task> --> to remove the finidhed task \n");
-		
+		guide();	
 		return 1;
 	}
 
@@ -77,13 +94,24 @@ int main(int argc , char *argv[]){
 		show_todos();				//to show the todos from csv
 	}
 
-	else if(strcmp(argv[1], "clear") == 0){
+	else if((strcmp(argv[1], "clear") == 0) && argc == 2){
 		char choice;
 		printf("Are you sure want to delete the todos[Y/n]:");
 		scanf(" %c", &choice);
 		if( choice == 'Y' || choice == 'y' ){
 			erase_todo();
 			printf("Your todos are removed...\n");
+		}
+	}
+	else if((strcmp(argv[1], "clear") == 0) && argc >2){
+		if(argc == 3){
+			printf("for deleting particular todo with index i");
+		}
+		else if(strcmp(argv[4], "to") && argc == 5){
+			printf("for deleting todos with ranges... ex: i to j");
+		}
+		else if(strcmp(argv[4], "to")){
+			printf("for deleting todos after index i");
 		}
 	}
 }
